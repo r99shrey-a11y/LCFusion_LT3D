@@ -1,0 +1,17 @@
+# Generated data
+dino_detections.pkl
+*.pkl
+
+# Visualizations
+viz/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
