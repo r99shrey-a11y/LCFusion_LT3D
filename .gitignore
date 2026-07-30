@@ -1,6 +1,9 @@
 # Generated data
-dino_detections.pkl
 *.pkl
+detections/
+
+# Training logs (regenerable)
+logs/
 
 # Visualizations
 viz/

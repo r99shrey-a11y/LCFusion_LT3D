@@ -30,7 +30,7 @@ _OrigNuSc = update_mod.NuScenes
 update_mod.NuScenes = lambda version, dataroot, verbose: _OrigNuSc(
     version=version, dataroot=ROOT, verbose=verbose)
 
-# ── Load nuScenes metadata ────────────────────────────────────────────────────
+# Load nuScenes metadata
 nusc = NuScenes(version="v1.0-trainval", dataroot=ROOT, verbose=False)
 
 
@@ -46,7 +46,7 @@ def scene_files_exist(scene):
     return True
 
 
-# ── Filter the official val split to scenes present in part 1 ─────────────────
+# Filter the official val split to scenes present in part 1
 name_to_scene = {s['name']: s for s in nusc.scene}
 present_val = [name for name in splits.val
                if name in name_to_scene and scene_files_exist(name_to_scene[name])]
@@ -61,7 +61,7 @@ all_names = [s['name'] for s in nusc.scene]
 splits.val   = present_val
 splits.train = [n for n in all_names if n not in set(present_val)]
 
-# ── Build infos (only present val scenes end up in the val pkl) ───────────────
+# Build infos (only present val scenes end up in the val pkl)
 nuscenes_converter.create_nuscenes_infos(ROOT, PREFIX, version="v1.0-trainval", max_sweeps=10)
 
 val_path = os.path.join(ROOT, f"{PREFIX}_infos_val.pkl")

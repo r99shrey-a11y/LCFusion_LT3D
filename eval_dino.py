@@ -1,57 +1,83 @@
 """
 Run DINO on all 6 camera views of every nuScenes val sample.
-Saves detections to dino_detections.pkl for use in late fusion.
-Prints per-class detection counts as a sanity check.
+Saves detections to a per-run pkl for use in late fusion.
+
+DINO_RUN selects the detector:
+  "coco"  → COCO-pretrained (80 classes, only 6 nuScenes classes covered)
+  "runA"  → fine-tuned imbalanced   (all 10 nuScenes classes)
+  "runB"  → fine-tuned class-balanced (all 10 nuScenes classes)
 
 Usage: /home/batashey/miniconda3/envs/lcfusion/bin/python eval_dino.py
 """
 
 import os, sys, pickle
 sys.path.insert(0, os.path.expanduser("~/LCFusion_LT3D"))
-from utils import REPO, DATA_ROOTS, torch
+from utils import REPO, DATA_ROOTS, NUSCENES_CLASSES, torch
 
-# ── CHOOSE DATASET HERE ───────────────────────────────────────────────────────
-DATASET = "trainval"     # options: "mini" or "trainval"
+# ── CHOOSE HERE ───────────────────────────────────────────────────────────────
+DINO_RUN = "curated_p1_cbd"  # "coco", "runA", "runB", "runC", "curated", "curated_p1_cbd"
+DATASET  = "trainval"    # "mini" or "trainval"
 # ──────────────────────────────────────────────────────────────────────────────
 
-CKPT_DIR  = os.path.join(REPO, "checkpoints/dino")
 SCORE_THR = 0.3
 CAMERAS   = ['CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_FRONT_LEFT',
              'CAM_BACK', 'CAM_BACK_LEFT', 'CAM_BACK_RIGHT']
 
+# COCO→nuScenes mapping (only used for the COCO-pretrained model)
 COCO_TO_NUS = {
-    "car":        "car",
-    "truck":      "truck",
-    "bus":        "bus",
-    "motorcycle": "motorcycle",
-    "bicycle":    "bicycle",
-    "person":     "pedestrian",
+    "car": "car", "truck": "truck", "bus": "bus",
+    "motorcycle": "motorcycle", "bicycle": "bicycle", "person": "pedestrian",
+}
+
+# Config + checkpoint per run
+DINO_CFG = {
+    "coco": dict(
+        cfg=os.path.join(REPO, "checkpoints/dino/dino-4scale_r50_8xb2-12e_coco.py"),
+        ckpt=os.path.join(REPO, "checkpoints/dino",
+             "dino-4scale_r50_8xb2-12e_coco_20221202_182705-55b2bba2.pth"),
+        finetuned=False),
+    "runA": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_runA.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runA/epoch_4.pth"),
+        finetuned=True),
+    "runB": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_runB.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runB/epoch_4.pth"),
+        finetuned=True),
+    "runC": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_runC.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runC/epoch_4.pth"),
+        finetuned=True),
+    "curated": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated/epoch_4.pth"),
+        finetuned=True),
+    "curated_p1_cbd": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated_p1_cbd.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated_p1_cbd/epoch_4.pth"),
+        finetuned=True),
 }
 
 
 def main():
     from mmdet.apis import init_detector, inference_detector
 
+    info      = DINO_CFG[DINO_RUN]
     data_root = DATA_ROOTS[DATASET]
-    cfg_path  = os.path.join(CKPT_DIR, "dino-4scale_r50_8xb2-12e_coco.py")
-    ckpt_path = os.path.join(CKPT_DIR,
-                next(f for f in os.listdir(CKPT_DIR) if f.endswith(".pth")))
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device    = "cuda:0" if torch.cuda.is_available() else "cpu"
+    model     = init_detector(info['cfg'], info['ckpt'], device=device)
+    classes   = model.dataset_meta['classes']
 
-    model     = init_detector(cfg_path, ckpt_path, device=device)
     val_infos = pickle.load(open(os.path.join(data_root, "nuscenes_infos_val.pkl"), "rb"))
 
-    all_detections = {}   # token -> list of dicts {cam, bbox, score, coco_class, nus_class}
-    class_counts   = {}
+    all_detections, class_counts = {}, {}
 
-    for info in val_infos['data_list']:
-        token = info['token']
+    for vinfo in val_infos['data_list']:
+        token = vinfo['token']
         dets  = []
-
         for cam in CAMERAS:
             img_path = os.path.join(data_root, "samples", cam,
-                                    os.path.basename(info['images'][cam]['img_path']))
-
+                                    os.path.basename(vinfo['images'][cam]['img_path']))
             result = inference_detector(model, img_path)
             pred   = result.pred_instances
             bboxes = pred.bboxes.cpu().numpy()
@@ -60,23 +86,25 @@ def main():
 
             mask = scores > SCORE_THR
             for b, s, l in zip(bboxes[mask], scores[mask], labels[mask]):
-                coco_cls = model.dataset_meta['classes'][l]
-                nus_cls  = COCO_TO_NUS.get(coco_cls)
+                cls_name = classes[l]
+                if info['finetuned']:
+                    nus_cls = cls_name          # already a nuScenes class
+                else:
+                    nus_cls = COCO_TO_NUS.get(cls_name)
                 dets.append(dict(cam=cam, bbox=b, score=float(s),
-                                 coco_class=coco_cls, nus_class=nus_cls))
-                class_counts[coco_cls] = class_counts.get(coco_cls, 0) + 1
-
+                                 coco_class=cls_name, nus_class=nus_cls))
+                if nus_cls:
+                    class_counts[nus_cls] = class_counts.get(nus_cls, 0) + 1
         all_detections[token] = dets
 
-    out_path = os.path.join(os.path.expanduser("~/LCFusion_LT3D"), "dino_detections.pkl")
+    out_path = os.path.expanduser(f"~/LCFusion_LT3D/detections/dino_detections_{DINO_RUN}.pkl")
     pickle.dump(all_detections, open(out_path, "wb"))
 
-    print(f"\nDINO on nuScenes {DATASET} val — all 6 cameras  ({len(all_detections)} samples)")
-    print(f"Score threshold: {SCORE_THR}\nSaved to: {out_path}\n")
-    print("Detection counts per COCO class:")
-    for cls, count in sorted(class_counts.items(), key=lambda x: -x[1]):
-        nus = COCO_TO_NUS.get(cls, "—")
-        print(f"  {cls:<20} → nuScenes: {str(nus):<15}  count: {count}")
+    print(f"\nDINO ({DINO_RUN}) on {DATASET} val — 6 cameras, {len(all_detections)} samples")
+    print(f"Saved to: {out_path}\n")
+    print("Detection counts per nuScenes class:")
+    for cls in NUSCENES_CLASSES:
+        print(f"  {cls:<22} {class_counts.get(cls, 0)}")
 
 
 if __name__ == "__main__":
