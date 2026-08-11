@@ -169,7 +169,7 @@
       <table>
         <tr><th>Configuration</th><th>Parts</th><th>Images</th><th>Car/ped-only<br>images kept</th></tr>
         <tr><td>Run A / C</td><td>1</td><td>14,772</td><td>100% (unfiltered)</td></tr>
-        <tr><td>Curated</td><td>1, 2, 3, 5, 6</td><td>36,588</td><td>0% (dropped entirely)</td></tr>
+        <tr><td>Curated</td><td>1, 2, 3</td><td>36,588</td><td>0% (dropped entirely)</td></tr>
         <tr><td>Curated + Oversampling</td><td>1</td><td>8,815 → 12,139<sup>†</sup></td><td>10%</td></tr>
       </table>
       <p style="font-size:.78rem;">† effective size after class-balanced resampling. Car/pedestrian-only
@@ -185,7 +185,7 @@
 
   <figure>
     <div class="chart-wrap"><canvas id="chartDataParts"></canvas></div>
-    <figcaption>Fig. 1 — Training image count by experiment. "Curated" pools trainval parts 1, 2, 3, 5, 6 and
+    <figcaption>Fig. 1 — Training image count by experiment. "Curated" pools trainval parts 1, 2, 3 and
     drops every car/pedestrian-only image entirely, while keeping every tail-containing image. "Curated +
     Oversampling" restricts to part 1 only and keeps 10% of car/pedestrian-only images, then applies
     class-balanced resampling (effective size shown).</figcaption>
@@ -423,7 +423,7 @@ document.getElementById('tblFull').innerHTML = (()=>{
 new Chart(document.getElementById('chartDataParts'), {
   type:'bar',
   data:{
-    labels:['Run A/C (part 1)','Curated (parts 1,2,3,5,6)','Curated+Oversampling (part 1, effective)'],
+    labels:['Run A/C (part 1)','Curated (parts 1,2,3)','Curated+Oversampling (part 1, effective)'],
     datasets:[{label:'Training images', data:[14772,36588,12139], backgroundColor:'#2c5282'}]
   },
   options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,grid:{color:'#e2e2e2'}}, x:{grid:{display:false}}}}

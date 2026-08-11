@@ -16,7 +16,7 @@ from late_fusion import (project_box, iou, CAMERAS, DINO_COVERED_ALL,
 
 MODEL    = "bevfusion"
 DATASET  = "trainval"
-TARGET_CLASSES = ["trailer", "construction_vehicle", "barrier", "bus"]
+TARGET_CLASSES = ["truck", "trailer", "construction_vehicle", "barrier", "bus"]
 
 # Test multiple IoU thresholds to see sensitivity
 IOU_TEST_THRESHOLDS = [0.1, 0.3, 0.5]
@@ -106,7 +106,7 @@ def diagnose(dino_run):
 
 
 def main():
-    for run in ["runB", "runC"]:
+    for run in ["runC", "curated_cbd030"]:
         print(f"\n{'='*70}\nDINO {run}\n{'='*70}")
         stats, raw = diagnose(run)
         for cls in TARGET_CLASSES:
