@@ -19,7 +19,7 @@ from utils import REPO, DATA_ROOTS, patch_cfg, print_results, torch
 # CONFIG
 MODEL    = "bevfusion"   # 3D backbone: "bevfusion" or "centerpoint"
 DATASET  = "trainval"    # "mini" or "trainval"
-DINO_RUN = "runC_seed2"  # "coco","runA","runB","runC","runC_seed1","runC_seed2","curated","curated_p1_cbd","curated_cbd030","curated_cbd030_nobarrier"
+DINO_RUN = "curated_v3_barrierp1_cbd030"  # "coco","runA","runB","runC","runC_seed1","runC_seed2","curated","curated_p1_cbd","curated_cbd030","curated_cbd030_nobarrier","curated_v3_barrierp1_cbd030"
 
 IOU_THRESH     = 0.5     # min IoU for a 3D↔2D match
 SCORE_3D_THR   = 0.05    # ignore very low-score 3D boxes before fusion

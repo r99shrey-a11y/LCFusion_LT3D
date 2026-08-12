@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.expanduser("~/LCFusion_LT3D"))
 from utils import REPO, DATA_ROOTS, NUSCENES_CLASSES, torch
 
 # ── CHOOSE HERE ───────────────────────────────────────────────────────────────
-DINO_RUN = "runC_seed2"  # "coco", "runA", "runB", "runC", "runC_seed1", "runC_seed2", "curated", "curated_p1_cbd", "curated_cbd030", "curated_cbd030_nobarrier"
+DINO_RUN = "curated_v3_barrierp1_cbd030"  # "coco", "runA", "runB", "runC", "runC_seed1", "runC_seed2", "curated", "curated_p1_cbd", "curated_cbd030", "curated_cbd030_nobarrier", "curated_v3_barrierp1_cbd030"
 DATASET  = "trainval"    # "mini" or "trainval"
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -71,6 +71,10 @@ DINO_CFG = {
     "curated_cbd030_nobarrier": dict(
         cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated_cbd030_nobarrier.py"),
         ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated_cbd030_nobarrier/epoch_2.pth"),
+        finetuned=True),
+    "curated_v3_barrierp1_cbd030": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated_v3_barrierp1_cbd030.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated_v3_barrierp1_cbd030/epoch_2.pth"),
         finetuned=True),
 }
 
