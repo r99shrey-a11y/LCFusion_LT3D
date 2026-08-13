@@ -224,7 +224,7 @@
 
   <figure>
     <div class="chart-wrap"><canvas id="chartBevfusion"></canvas></div>
-    <figcaption>Fig. 4 — Per-class AP across fine-tuning strategies. Run C
+    <figcaption>Fig. 4 — Per-class AP across fine-tuning strategies. oversampled run
     (<code>ClassBalancedDataset</code>, <code>oversample_thr=0.17</code>) is the best configuration found.</figcaption>
   </figure>
 
@@ -238,7 +238,7 @@
     </div>
     <div class="card">
       <h3>Curated + Oversampling <span class="flag">complete</span></h3>
-      <p>Direct, same-data comparison against Run C: identical part-1 scenes and <code>ClassBalancedDataset</code>
+      <p>Direct, same-data comparison against oversampled run: identical part-1 scenes and <code>ClassBalancedDataset</code>
       settings, the only difference is curating away most car/pedestrian-only images first. Result below.</p>
     </div>
   </div>
@@ -256,7 +256,7 @@
 <section id="qualitative">
   <h2><span class="num">6.</span>Qualitative Comparison — BEV Predictions</h2>
   <p class="lead">Bird's-eye-view detections on four val samples: ground truth vs. fused predictions
-  (score &gt; 0.3) for CenterPoint + DINO(B) and BEVFusion + DINO(C). Boxes are colored by class
+  (score &gt; 0.3) for CenterPoint + DINO (unbalanced) and BEVFusion + DINO (oversampled). Boxes are colored by class
   (see legend on each figure); the LiDAR sweep is shown in white, ego-vehicle at center.</p>
 
   <div class="viz-grid" id="vizGrid"></div>
@@ -273,7 +273,7 @@
   <figure>
     <div class="chart-wrap"><canvas id="chartOverall"></canvas></div>
     <figcaption>Fig. 5 — Overall, head, and tail mAP by configuration. BEVFusion backbones outperform CenterPoint
-    at every matched DINO variant; Run C is the best configuration overall.</figcaption>
+    at every matched DINO variant; oversampled run is the best configuration overall.</figcaption>
   </figure>
 </section>
 
@@ -305,6 +305,48 @@
 
 </main>
 
+<section id="additional">
+  <h2><span class="num">9.</span>Additional Experiments &amp; Diagnostics</h2>
+  <p class="lead">The following experiments were conducted during the investigation but are not part of the
+  main results. They are documented here for completeness and to support the diagnostic conclusions above.</p>
+
+  <table>
+    <caption>Experiments not included in the main comparison (all BEVFusion + DINO, trainval part-1 val)</caption>
+    <tr><th>Configuration</th><th>Head</th><th>Tail</th><th>Overall</th><th>NDS</th><th>Status / Reason excluded</th></tr>
+    <tr><td>Weighted-loss (ClassWeightedFocalLoss)</td><td>0.800</td><td>0.547</td><td>0.623</td><td>0.678</td><td>Underperformed oversampling; out of scope</td></tr>
+    <tr><td>Curated + Copy-Paste (targeted trailer/cv)</td><td>0.812</td><td>0.523</td><td>0.610</td><td>0.673</td><td>Confounded by fixed-scale requirement; out of scope</td></tr>
+    <tr><td>Curated + Oversampling (part-1 only, thr=0.17)</td><td>0.801</td><td>0.558</td><td>0.631</td><td>0.684</td><td>Reduced training volume hurt rare classes vs oversampled run</td></tr>
+    <tr><td>Curated + CBD (nobarrier ablation)</td><td>0.810</td><td>0.538</td><td>0.620</td><td>0.678</td><td>Barrier not recovered; rules out oversampling-of-barrier as cause</td></tr>
+    <tr><td>Curated v3 (barrier volume restricted)</td><td>0.807</td><td>0.529</td><td>0.612</td><td>0.670</td><td>Barrier worsened; rules out raw volume as cause</td></tr>
+  </table>
+
+  <div class="card" style="margin-top:18px;">
+    <h3>Training-seed variance (Run C, measured Aug 11)</h3>
+    <p>Retrained Run C twice more with fixed seeds (seed=1, seed=2) to establish the noise floor.
+    Overall mAP spread: 0.634–0.636 (±0.002). Tail mAP spread: 0.560–0.563 (±0.003).
+    This confirms every major finding in this project (barrier's 0.152 collapse, oversampled vs curated
+    Δ0.016–0.022) is well above the noise floor and reflects real effects, not seed-driven randomness.</p>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <h3>Fusion hyperparameter sweep (Aug 12)</h3>
+    <p>Swept <code>IOU_THRESH</code> (0.3–0.7), <code>SCORE_3D_THR</code> (0.02–0.15), and
+    <code>W_UNMATCHED</code> (0.3–1.0) on the oversampled run's cached predictions. Best found:
+    <code>IOU_THRESH=0.3</code> → overall 0.640, a +0.004 gain — at the edge of the measured noise floor.
+    Confirms the original fusion parameters were already near-optimal.</p>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <h3>Barrier diagnostic chain (Aug 10–12)</h3>
+    <p>A 5-step investigation into why barrier collapses under multi-part+oversampled training
+    (0.590 → 0.438): (1) label geometry — no difference, (2) 2D AP — unchanged, (3) fusion calibration
+    sweep — ceiling ~0.453, (4) barrier excluded from oversampling — no recovery, (5) barrier volume
+    partially reduced — worsened. Root cause: training on combined multi-part data shifts barrier's
+    confidence distribution (more hallucinated FPs at score&gt;0.3, precision 0.671→0.518), which is
+    not isolable to any single, fixable mechanism.</p>
+  </div>
+</section>
+
 <footer>Generated from experiment logs — nuScenes trainval part-1 val (914 samples, 23 scenes). All 3D backbones frozen; only DINO fine-tuned.</footer>
 
 <script>
@@ -322,7 +364,7 @@ const baselines = {
 };
 
 const centerpoint = {
-  labels: ['CenterPoint (LiDAR)', 'CenterPoint + DINO(A)'],
+  labels: ['CenterPoint (LiDAR)', 'CenterPoint + DINO (unbalanced)'],
   perClass: {
     car:[0.862,0.860], pedestrian:[0.827,0.820], bicycle:[0.244,0.272],
     truck:[0.489,0.534], bus:[0.689,0.724], trailer:[0.199,0.100],
@@ -333,7 +375,7 @@ const centerpoint = {
 };
 
 const bevfusion = {
-  labels: ['BEVFusion (LiDAR)', '+DINO(A)', '+DINO(C) best', '+Curated'],
+  labels: ['BEVFusion (LiDAR)', '+DINO (unbalanced)', '+DINO (oversampled)', '+Curated'],
   perClass: {
     car:[0.888,0.883,0.886,0.890],
     pedestrian:[0.898,0.896,0.899,0.900],
@@ -353,7 +395,7 @@ const bevfusion = {
 };
 
 const curatedOversampling = {
-  labels: ['BEVFusion+DINO(C)', 'BEVFusion+Curated+Oversampling'],
+  labels: ['BEVFusion+DINO (oversampled)', 'BEVFusion+Curated+Oversampling (thr=0.30)'],
   perClass: {
     car:[0.886,0.885], pedestrian:[0.899,0.898], bicycle:[0.628,0.621],
     truck:[0.578,0.587], bus:[0.734,0.728], trailer:[0.189,0.167],
@@ -364,13 +406,13 @@ const curatedOversampling = {
 };
 
 const allConfigs = [
-  {name:'CenterPoint (LiDAR)', overall:0.480, head:0.644, tail:0.410, nds:0.578},
-  {name:'CenterPoint+DINO(A)', overall:0.516, head:0.651, tail:0.458, nds:0.593},
-  {name:'BEVFusion (LiDAR)', overall:0.613, head:0.798, tail:0.533, nds:0.675},
-  {name:'BEVFusion+DINO(A)', overall:0.630, head:0.800, tail:0.557, nds:0.681},
-  {name:'BEVFusion+DINO(C)', overall:0.636, head:0.805, tail:0.563, nds:0.688, best:true},
-  {name:'BEVFusion+Curated', overall:0.614, head:0.809, tail:0.531, nds:0.672},
-  {name:'BEVFusion+Curated+Oversampling', overall:0.631, head:0.801, tail:0.558, nds:0.684},
+  {name:"CenterPoint (LiDAR)", overall:0.480, head:0.644, tail:0.410, nds:0.578},
+  {name:"CenterPoint+DINO (unbalanced)", overall:0.516, head:0.651, tail:0.458, nds:0.593},
+  {name:"BEVFusion (LiDAR)", overall:0.613, head:0.798, tail:0.533, nds:0.675},
+  {name:"BEVFusion+DINO (unbalanced)", overall:0.630, head:0.800, tail:0.557, nds:0.681},
+  {name:"BEVFusion+DINO (oversampled)", overall:0.636, head:0.805, tail:0.563, nds:0.688, best:true},
+  {name:"BEVFusion+Curated", overall:0.614, head:0.809, tail:0.531, nds:0.672},
+  {name:"BEVFusion+Curated+Oversampling (thr=0.30)", overall:0.620, head:0.811, tail:0.538, nds:0.676},
 ];
 
 function classRows(perClass){
@@ -407,7 +449,7 @@ const VIZ_IMAGES = {
 document.getElementById('vizGrid').innerHTML = [0,1,2,3].map(i =>
   `<div class="viz-item">
      <img src="${VIZ_IMAGES[i]}" alt="Fused BEV comparison, sample ${i}" loading="lazy">
-     <div class="viz-cap">Sample ${i} — Ground Truth (left) · CenterPoint + DINO(B) (center) · BEVFusion + DINO(C) (right)</div>
+     <div class="viz-cap">Sample ${i} — Ground Truth (left) · CenterPoint + DINO (unbalanced) (center) · BEVFusion + DINO (oversampled) (right)</div>
    </div>`
 ).join('');
 

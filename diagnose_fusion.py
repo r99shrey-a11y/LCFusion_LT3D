@@ -106,7 +106,7 @@ def diagnose(dino_run):
 
 
 def main():
-    for run in ["runC", "curated_cbd030"]:
+    for run in ["oversampled", "curated_cbd030"]:
         print(f"\n{'='*70}\nDINO {run}\n{'='*70}")
         stats, raw = diagnose(run)
         for cls in TARGET_CLASSES:

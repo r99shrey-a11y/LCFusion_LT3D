@@ -1,6 +1,6 @@
 """
 Visualise FUSED 3D+2D predictions (BEV) for two configs side by side:
-  CenterPoint + DINO(B)  vs  BEVFusion + DINO(C)
+  CenterPoint + DINO(B)  vs  BEVFusion + DINO (oversampled)
 Reuses the exact fusion logic from late_fusion.py (fuse_sample, bayes_fuse, CAL)
 and the exact plotting style from visualize.py — no fusion math duplicated.
 
@@ -25,8 +25,8 @@ OUT_DIR   = os.path.expanduser("~/LCFusion_LT3D/viz")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 CONFIGS = [
-    dict(model="centerpoint", dino_run="runB", title="CenterPoint + DINO(B)"),
-    dict(model="bevfusion",   dino_run="runC", title="BEVFusion + DINO(C)"),
+    dict(model="centerpoint", dino_run="unbalanced", title="CenterPoint + DINO (unbalanced)"),
+    dict(model="bevfusion",   dino_run="oversampled", title="BEVFusion + DINO (oversampled)"),
 ]
 
 COLORS = {

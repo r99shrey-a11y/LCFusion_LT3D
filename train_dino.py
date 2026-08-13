@@ -7,7 +7,7 @@ Usage:
     python ~/LCFusion_LT3D/train_dino.py <config.py>
 
 Example:
-  python ~/LCFusion_LT3D/train_dino.py ~/LCFusion_LT3D/configs/dino_nuscenes_runA.py
+  python ~/LCFusion_LT3D/train_dino.py ~/LCFusion_LT3D/configs/dino_nuscenes_unbalanced.py
 """
 import sys, os, torch
 

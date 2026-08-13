@@ -3,9 +3,9 @@ Run DINO on all 6 camera views of every nuScenes val sample.
 Saves detections to a per-run pkl for use in late fusion.
 
 DINO_RUN selects the detector:
-  "coco"  → COCO-pretrained (80 classes, only 6 nuScenes classes covered)
-  "runA"  → fine-tuned imbalanced   (all 10 nuScenes classes)
-  "runB"  → fine-tuned class-balanced (all 10 nuScenes classes)
+  "coco"        → COCO-pretrained (80 classes, only 6 nuScenes classes covered)
+  "unbalanced"  → fine-tuned on natural (imbalanced) distribution
+  "oversampled" → fine-tuned with ClassBalancedDataset (oversample_thr=0.17)
 
 Usage: /home/batashey/miniconda3/envs/lcfusion/bin/python eval_dino.py
 """
@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.expanduser("~/LCFusion_LT3D"))
 from utils import REPO, DATA_ROOTS, NUSCENES_CLASSES, torch
 
 # ── CHOOSE HERE ───────────────────────────────────────────────────────────────
-DINO_RUN = "curated_v3_barrierp1_cbd030"  # "coco", "runA", "runB", "runC", "runC_seed1", "runC_seed2", "curated", "curated_p1_cbd", "curated_cbd030", "curated_cbd030_nobarrier", "curated_v3_barrierp1_cbd030"
+DINO_RUN = "oversampled"  # "coco", "unbalanced", "oversampled", "curated", "curated_cbd030"
 DATASET  = "trainval"    # "mini" or "trainval"
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -36,45 +36,21 @@ DINO_CFG = {
         ckpt=os.path.join(REPO, "checkpoints/dino",
              "dino-4scale_r50_8xb2-12e_coco_20221202_182705-55b2bba2.pth"),
         finetuned=False),
-    "runA": dict(
-        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_runA.py"),
-        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runA/epoch_4.pth"),
+    "unbalanced": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_unbalanced.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_unbalanced/epoch_4.pth"),
         finetuned=True),
-    "runB": dict(
-        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_runB.py"),
-        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runB/epoch_4.pth"),
-        finetuned=True),
-    "runC": dict(
-        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_runC.py"),
-        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runC/epoch_4.pth"),
-        finetuned=True),
-    "runC_seed1": dict(
-        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_runC_seed1.py"),
-        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runC_seed1/epoch_4.pth"),
-        finetuned=True),
-    "runC_seed2": dict(
-        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_runC_seed2.py"),
-        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runC_seed2/epoch_4.pth"),
+    "oversampled": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_oversampled.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_oversampled/epoch_4.pth"),
         finetuned=True),
     "curated": dict(
         cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated.py"),
         ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated/epoch_4.pth"),
         finetuned=True),
-    "curated_p1_cbd": dict(
-        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated_p1_cbd.py"),
-        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated_p1_cbd/epoch_4.pth"),
-        finetuned=True),
     "curated_cbd030": dict(
         cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated_cbd030.py"),
         ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated_cbd030/epoch_2.pth"),
-        finetuned=True),
-    "curated_cbd030_nobarrier": dict(
-        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated_cbd030_nobarrier.py"),
-        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated_cbd030_nobarrier/epoch_2.pth"),
-        finetuned=True),
-    "curated_v3_barrierp1_cbd030": dict(
-        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated_v3_barrierp1_cbd030.py"),
-        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated_v3_barrierp1_cbd030/epoch_2.pth"),
         finetuned=True),
 }
 

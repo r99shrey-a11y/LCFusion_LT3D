@@ -11,7 +11,7 @@ import late_fusion as lf
 from utils import REPO, DATA_ROOTS, patch_cfg, torch, NUSCENES_CLASSES, HEAD_CLASSES
 
 DATASET  = "trainval"
-DINO_RUN = "runC"
+DINO_RUN = "oversampled"
 PREFIX   = "NuScenes metric/pred_instances_3d_NuScenes/"
 DISTS    = ["AP_dist_0.5", "AP_dist_1.0", "AP_dist_2.0", "AP_dist_4.0"]
 

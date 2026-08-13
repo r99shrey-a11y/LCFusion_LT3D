@@ -1,11 +1,11 @@
 """
-DINO fine-tune config — Run A (imbalanced).
+DINO fine-tune config — DINO fine-tune — UNBALANCED (natural class distribution).
 Fine-tunes COCO-pretrained DINO on nuScenes 2D annotations (10 classes).
 
 Train with:
   cd ~/mmdetection3d && PYTHONPATH=. \
   python ~/mmdetection3d/tools/train.py \
-    ~/LCFusion_LT3D/configs/dino_nuscenes_runA.py
+    ~/LCFusion_LT3D/configs/dino_nuscenes_unbalanced.py
 """
 
 _base_ = ['/home/batashey/mmdetection3d/checkpoints/dino/dino-4scale_r50_8xb2-12e_coco.py']
@@ -55,4 +55,4 @@ train_cfg = dict(max_epochs=max_epochs, val_interval=2)
 # Lower LR for fine-tuning
 optim_wrapper = dict(optimizer=dict(lr=0.0001))
 
-work_dir = '/home/batashey/mmdetection3d/work_dirs/dino_nuscenes_runA'
+work_dir = '/home/batashey/mmdetection3d/work_dirs/dino_nuscenes_unbalanced'

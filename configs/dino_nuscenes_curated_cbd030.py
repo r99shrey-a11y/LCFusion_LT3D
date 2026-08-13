@@ -64,7 +64,7 @@ Train with:
     ~/LCFusion_LT3D/configs/dino_nuscenes_curated_cbd030.py
 """
 
-_base_ = ['./dino_nuscenes_runA.py']   # multi-scale pipeline, 10-class head, COCO init
+_base_ = ['./dino_nuscenes_unbalanced.py']   # multi-scale pipeline, 10-class head, COCO init
 
 CLASSES = ('car', 'truck', 'trailer', 'bus', 'construction_vehicle',
            'bicycle', 'motorcycle', 'pedestrian', 'traffic_cone', 'barrier')
