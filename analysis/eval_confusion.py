@@ -39,7 +39,7 @@ def setup():
     from mmengine.runner import Runner
     from mmengine.registry import init_default_scope
     init_default_scope('mmdet3d')
-    ci = lf.MODELS["bevfusion"]
+    ci = lf.MODELS[os.environ.get("CONFMAT_MODEL", "bevfusion")]
     cfg = patch_cfg(Config.fromfile(ci['cfg']), ci['ckpt'], "/tmp/confmat", dataset=DATASET)
     cfg.test_dataloader.batch_size = 1
     runner = Runner.from_cfg(cfg)

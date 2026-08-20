@@ -52,6 +52,14 @@ DINO_CFG = {
         cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_curated_cbd030.py"),
         ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_curated_cbd030/epoch_2.pth"),
         finetuned=True),
+    "runC_seed1": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_oversampled.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runC_seed1/epoch_4.pth"),
+        finetuned=True),
+    "runC_seed2": dict(
+        cfg=os.path.expanduser("~/LCFusion_LT3D/configs/dino_nuscenes_oversampled.py"),
+        ckpt=os.path.join(REPO, "work_dirs/dino_nuscenes_runC_seed2/epoch_4.pth"),
+        finetuned=True),
 }
 
 

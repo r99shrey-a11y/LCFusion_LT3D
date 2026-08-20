@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.expanduser("~/LCFusion_LT3D"))
 from utils import REPO, DATA_ROOTS, patch_cfg, print_results, torch
 
 # CONFIG
-MODEL    = "bevfusion"   # 3D backbone: "bevfusion" or "centerpoint"
+MODEL    = "bevfusion_cam"   # 3D backbone: "bevfusion" or "centerpoint"
 DATASET  = "trainval"    # "mini" or "trainval"
 DINO_RUN = "oversampled"  # "coco", "unbalanced", "oversampled", "curated", "curated_cbd030"
 
@@ -56,6 +56,12 @@ MODELS = {
         ckpt=os.path.join(REPO, "checkpoints/bevfusion",
             "bevfusion_lidar_voxel0075_second_secfpn_8xb4-cyclic-20e_nus-3d-2628f933.pth"),
         title="BEVFusion + DINO"),
+    "bevfusion_cam": dict(
+        cfg=os.path.join(REPO, "projects/BEVFusion/configs",
+            "bevfusion_lidar-cam_voxel0075_second_secfpn_8xb4-cyclic-20e_nus-3d.py"),
+        ckpt=os.path.join(REPO, "checkpoints/bevfusion",
+            "bevfusion_lidar-cam_voxel0075_second_secfpn_8xb4-cyclic-20e_nus-3d-5239b1af.pth"),
+        title="BEVFusion(cam+LiDAR) + DINO"),
     "centerpoint": dict(
         cfg=os.path.join(REPO, "checkpoints/centerpoint",
             "centerpoint_pillar02_second_secfpn_head-circlenms_8xb4-cyclic-20e_nus-3d.py"),
