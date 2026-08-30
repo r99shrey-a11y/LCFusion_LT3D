@@ -1,16 +1,13 @@
 """
 Evaluate CenterPoint on nuScenes val set.
 Choose the dataset by setting DATASET below.
-Usage: /home/batashey/miniconda3/envs/lcfusion/bin/python eval_centerpoint.py
 """
 
 import os, sys
 sys.path.insert(0, os.path.expanduser("~/LCFusion_LT3D"))
 from utils import REPO, patch_cfg, print_results
 
-# ── CHOOSE DATASET HERE ───────────────────────────────────────────────────────
 DATASET = "trainval"     # options: "mini" or "trainval"
-# ──────────────────────────────────────────────────────────────────────────────
 
 sys.path.insert(0, REPO)
 from mmengine.config import Config

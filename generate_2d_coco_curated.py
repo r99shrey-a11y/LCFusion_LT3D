@@ -6,11 +6,6 @@ all downloaded trainval parts.
 Outputs nuscenes_2d_train_pool.coco.json — every train-scene camera keyframe
 with its projected 2D boxes. No filtering is applied here; image-selection
 (curating) is done separately in make_curated_v2.py for fast iteration.
-
-Only TRAIN scenes (official split) are included. VAL is left frozen.
-
-Usage: cd ~/mmdetection3d && PYTHONPATH=. \
-  python ~/LCFusion_LT3D/generate_2d_coco_curated.py
 """
 import os, sys, json
 sys.path.insert(0, os.path.expanduser("~/mmdetection3d"))

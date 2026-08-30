@@ -91,8 +91,6 @@ def lidar2img(points_lidar, camera_info):
                         np.ones((points_lidar.shape[0], 1),
                                 dtype=points_lidar.dtype)], axis=1)
 
-    # lt3d-lf builds camera2lidar from separate rotation/translation; our
-    # data already provides lidar2camera (lidar2cam) directly.
     lidar2camera = camera_info['lidar2cam']
 
     points_camera_homogeneous = points_lidar_homogeneous @ lidar2camera.T

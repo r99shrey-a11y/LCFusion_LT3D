@@ -1,6 +1,5 @@
 """
 Evaluate BEVFusion (camera+LiDAR) on nuScenes val set — no DINO fusion (baseline).
-Usage: /home/batashey/miniconda3/envs/lcfusion/bin/python eval_bevfusion_cam.py
 """
 
 import os, sys

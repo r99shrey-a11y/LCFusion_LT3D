@@ -1,8 +1,6 @@
 """
 Generate nuscenes_infos_val.pkl for the trainval data actually present (part 1).
 Filters val scenes to those whose LiDAR files exist on disk, then builds infos.
-
-Usage: cd ~/mmdetection3d && PYTHONPATH=. python ~/LCFusion_LT3D/make_trainval_infos.py
 """
 import os, sys
 sys.path.insert(0, os.path.expanduser("~/mmdetection3d"))

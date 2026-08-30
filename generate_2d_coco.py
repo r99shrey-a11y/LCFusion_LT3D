@@ -8,7 +8,6 @@ Produces (in data/nuscenes_trainval/):
 
 Reuses get_2d_boxes / nus_categories from mmdet3d's nuscenes_converter.
 
-Usage: cd ~/mmdetection3d && PYTHONPATH=. python ~/LCFusion_LT3D/generate_2d_coco.py
 """
 import os, sys, json
 sys.path.insert(0, os.path.expanduser("~/mmdetection3d"))
@@ -56,7 +55,7 @@ def build_coco(scene_names, out_name):
                 sd_token = sample['data'][cam]
                 sd = nusc.get('sample_data', sd_token)
                 coco['images'].append(dict(
-                    file_name=sd['filename'],          # samples/CAM_.../xxx.jpg
+                    file_name=sd['filename'],        
                     id=sd_token,
                     width=sd['width'],
                     height=sd['height'],

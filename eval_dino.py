@@ -7,17 +7,14 @@ DINO_RUN selects the detector:
   "unbalanced"  → fine-tuned on natural (imbalanced) distribution
   "oversampled" → fine-tuned with ClassBalancedDataset (oversample_thr=0.17)
 
-Usage: /home/batashey/miniconda3/envs/lcfusion/bin/python eval_dino.py
 """
 
 import os, sys, pickle
 sys.path.insert(0, os.path.expanduser("~/LCFusion_LT3D"))
 from utils import REPO, DATA_ROOTS, NUSCENES_CLASSES, torch
 
-# ── CHOOSE HERE ───────────────────────────────────────────────────────────────
 DINO_RUN = "oversampled"  # "coco", "unbalanced", "oversampled", "curated", "curated_cbd030"
 DATASET  = "trainval"    # "mini" or "trainval"
-# ──────────────────────────────────────────────────────────────────────────────
 
 SCORE_THR = 0.3
 CAMERAS   = ['CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_FRONT_LEFT',
